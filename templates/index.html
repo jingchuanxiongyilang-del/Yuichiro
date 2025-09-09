@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>銀行株 翌日予測</title>
+  <style>
+    body { font-family: sans-serif; margin: 24px; color: #222; background-color: #f9fafb; }
+    h1 { margin-bottom: 8px; }
+    form { background: #fff; border: 1px solid #e5e7eb; padding: 16px; border-radius: 10px; max-width: 900px; margin: auto; }
+    label { font-weight: 600; display: block; margin-bottom: 6px; }
+    select, button { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; }
+    button { background: #2563eb; color: #fff; border: none; cursor: pointer; margin-top: 12px; }
+    button:hover { background: #1d4ed8; }
+    .container { max-width: 900px; margin: auto; }
+    .panel { margin-top: 24px; padding: 16px; border: 1px solid #e5e7eb; border-radius: 10px; background: #fff; }
+    .error { color: #b91c1c; background-color: #fee2e2; border-color: #fca5a5; }
+    .reason { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+    .reason div { background: #f9fafb; padding: 12px; border-radius: 8px; border: 1px solid #f1f5f9; }
+    img.chart { width: 100%; height: auto; display: block; margin-top: 16px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>銀行株の翌日予測</h1>
+    <p><small>AIモデルが直近60日間のデータ（終値、出来高、テクニカル指標）を使って翌営業日の終値を予測します。</small></p>
+
+    <form method="post">
+      <label for="ticker">銘柄を選択</label>
+      <select id="ticker" name="ticker" required>
+        <option value="" disabled selected>選択してください</option>
+        {% for t, name in stock_list.items() %}
+          <option value="{{ t }}" {% if form_values.get('ticker') == t %}selected{% endif %}>
+            {{ name }}（{{ t }}）
+          </option>
+        {% endfor %}
+      </select>
+      <button type="submit">予測を実行する</button>
+    </form>
+
+    {% if error %}
+      <div class="panel error">
+        <strong>エラー:</strong> {{ error }}
+      </div>
+    {% endif %}
+
+    {% if results %}
+      <div class="panel">
+        <h2>予測結果</h2>
+        <div class="reason">
+          <div>直近60日のトレンド: <strong>{{ results.reason.trend }}</strong></div>
+          <div>直近60日の価格差: <strong>{{ results.reason.trend_delta }}円</strong></div>
+          <div>ボラティリティ (変動率): <strong>{{ results.reason.volatility }}</strong></div>
+          <div><strong>{{ results.reason.predicted_date }} の終値予測: <span style="font-size: 1.2em; color: #b91c1c;">{{ results.reason.predicted_next }}円</span></strong></div>
+        </div>
+
+        {% if results.plot_url %}
+            <img class="chart" alt="予測グラフ"
+                 src="data:image/png;base64,{{ results.plot_url }}" />
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
